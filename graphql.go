@@ -108,8 +108,7 @@ func (c *Client) runWithJSON(ctx context.Context, req *Request, resp interface{}
 	if err := json.NewEncoder(&requestBody).Encode(requestBodyObj); err != nil {
 		return errors.Wrap(err, "encode body")
 	}
-	c.logf(">> variables: %v", req.vars)
-	c.logf(">> query: %s", req.q)
+
 	gr := &graphResponse{
 		Data: resp,
 	}
@@ -125,7 +124,7 @@ func (c *Client) runWithJSON(ctx context.Context, req *Request, resp interface{}
 			r.Header.Add(key, value)
 		}
 	}
-	c.logf(">> headers: %v", r.Header)
+
 	r = r.WithContext(ctx)
 	res, err := c.httpClient.Do(r)
 	if err != nil {
@@ -136,7 +135,7 @@ func (c *Client) runWithJSON(ctx context.Context, req *Request, resp interface{}
 	if _, err := io.Copy(&buf, res.Body); err != nil {
 		return errors.Wrap(err, "reading body")
 	}
-	c.logf("<< %s", buf.String())
+	c.logf("graphql-client:response: %s", buf.String())
 	if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
 		if res.StatusCode != http.StatusOK {
 			return fmt.Errorf("graphql: server returned a non-200 status code: %v", res.StatusCode)
